@@ -1,9 +1,6 @@
-/*jshint node:true */
+import assert from 'assert';
 
-var assert = require('assert');
-
-exports.HTTPParser = HTTPParser;
-function HTTPParser(type) {
+export function HTTPParser(type) {
   assert.ok(type === HTTPParser.REQUEST || type === HTTPParser.RESPONSE || type === undefined);
   if (type === undefined) {
     // Node v12+
@@ -56,7 +53,7 @@ Object.defineProperty(HTTPParser, 'kOnExecute', {
     }
   });
 
-var methods = exports.methods = HTTPParser.methods = [
+export const methods = [
   'DELETE',
   'GET',
   'HEAD',
@@ -91,7 +88,8 @@ var methods = exports.methods = HTTPParser.methods = [
   'LINK',
   'UNLINK'
 ];
-var method_connect = methods.indexOf('CONNECT');
+HTTPParser.methods = methods;
+const method_connect = methods.indexOf('CONNECT');
 HTTPParser.prototype.reinitialize = HTTPParser;
 HTTPParser.prototype.close =
 HTTPParser.prototype.pause =
