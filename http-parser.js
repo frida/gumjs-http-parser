@@ -33,10 +33,10 @@ HTTPParser.RESPONSE = 'RESPONSE';
 
 // Note: *not* starting with kOnHeaders=0 line the Node parser, because any
 //   newly added constants (kOnTimeout in Node v12.19.0) will overwrite 0!
-var kOnHeaders = HTTPParser.kOnHeaders = 1;
-var kOnHeadersComplete = HTTPParser.kOnHeadersComplete = 2;
-var kOnBody = HTTPParser.kOnBody = 3;
-var kOnMessageComplete = HTTPParser.kOnMessageComplete = 4;
+const kOnHeaders = HTTPParser.kOnHeaders = 1;
+const kOnHeadersComplete = HTTPParser.kOnHeadersComplete = 2;
+const kOnBody = HTTPParser.kOnBody = 3;
+const kOnMessageComplete = HTTPParser.kOnMessageComplete = 4;
 
 // Some handler stubs, needed for compatibility
 HTTPParser.prototype[kOnHeaders] =
@@ -44,7 +44,7 @@ HTTPParser.prototype[kOnHeadersComplete] =
 HTTPParser.prototype[kOnBody] =
 HTTPParser.prototype[kOnMessageComplete] = function () {};
 
-var compatMode0_12 = true;
+let compatMode0_12 = true;
 Object.defineProperty(HTTPParser, 'kOnExecute', {
     get: function () {
       // hack for backward compatibility
@@ -98,7 +98,7 @@ HTTPParser.prototype.free = function () {};
 HTTPParser.prototype._compatMode0_11 = false;
 HTTPParser.prototype.getAsyncId = function() { return 0; };
 
-var headerState = {
+const headerState = {
   REQUEST_LINE: true,
   RESPONSE_LINE: true,
   HEADER: true
@@ -115,7 +115,7 @@ HTTPParser.prototype.execute = function (chunk, start, length) {
 
   this.chunk = chunk;
   this.offset = start;
-  var end = this.end = start + length;
+  const end = this.end = start + length;
   try {
     while (this.offset < end) {
       if (this[this.state]()) {
@@ -140,7 +140,7 @@ HTTPParser.prototype.execute = function (chunk, start, length) {
   return length;
 };
 
-var stateFinishAllowed = {
+const stateFinishAllowed = {
   REQUEST_LINE: true,
   RESPONSE_LINE: true,
   BODY_RAW: true
@@ -168,7 +168,7 @@ HTTPParser.prototype.getCurrentBuffer = function () {};
 //Usage: this.userCall()(userFunction('arg'));
 HTTPParser.prototype.userCall = function () {
   this.isUserCall = true;
-  var self = this;
+  const self = this;
   return function (ret) {
     self.isUserCall = false;
     return ret;
@@ -181,11 +181,11 @@ HTTPParser.prototype.nextRequest = function () {
 };
 
 HTTPParser.prototype.consumeLine = function () {
-  var end = this.end,
-      chunk = this.chunk;
-  for (var i = this.offset; i < end; i++) {
+  const end = this.end,
+        chunk = this.chunk;
+  for (let i = this.offset; i < end; i++) {
     if (chunk[i] === 0x0a) { // \n
-      var line = this.line + chunk.toString(HTTPParser.encoding, this.offset, i);
+      let line = this.line + chunk.toString(HTTPParser.encoding, this.offset, i);
       if (line.charAt(line.length - 1) === '\r') {
         line = line.substr(0, line.length - 1);
       }
@@ -199,20 +199,20 @@ HTTPParser.prototype.consumeLine = function () {
   this.offset = this.end;
 };
 
-var headerExp = /^([^: \t]+):[ \t]*((?:.*[^ \t])|)/;
-var headerContinueExp = /^[ \t]+(.*[^ \t])/;
+const headerExp = /^([^: \t]+):[ \t]*((?:.*[^ \t])|)/;
+const headerContinueExp = /^[ \t]+(.*[^ \t])/;
 HTTPParser.prototype.parseHeader = function (line, headers) {
   if (line.indexOf('\r') !== -1) {
     throw parseErrorCode('HPE_LF_EXPECTED');
   }
 
-  var match = headerExp.exec(line);
-  var k = match && match[1];
+  const match = headerExp.exec(line);
+  const k = match && match[1];
   if (k) { // skip empty string (malformed header)
     headers.push(k);
     headers.push(match[2]);
   } else {
-    var matchContinue = headerContinueExp.exec(line);
+    const matchContinue = headerContinueExp.exec(line);
     if (matchContinue && headers.length) {
       if (headers[headers.length - 1]) {
         headers[headers.length - 1] += ' ';
@@ -222,13 +222,13 @@ HTTPParser.prototype.parseHeader = function (line, headers) {
   }
 };
 
-var requestExp = /^([A-Z-]+) ([^ ]+) HTTP\/(\d)\.(\d)$/;
+const requestExp = /^([A-Z-]+) ([^ ]+) HTTP\/(\d)\.(\d)$/;
 HTTPParser.prototype.REQUEST_LINE = function () {
-  var line = this.consumeLine();
+  const line = this.consumeLine();
   if (!line) {
     return;
   }
-  var match = requestExp.exec(line);
+  const match = requestExp.exec(line);
   if (match === null) {
     throw parseErrorCode('HPE_INVALID_CONSTANT');
   }
@@ -243,19 +243,19 @@ HTTPParser.prototype.REQUEST_LINE = function () {
   this.state = 'HEADER';
 };
 
-var responseExp = /^HTTP\/(\d)\.(\d) (\d{3}) ?(.*)$/;
+const responseExp = /^HTTP\/(\d)\.(\d) (\d{3}) ?(.*)$/;
 HTTPParser.prototype.RESPONSE_LINE = function () {
-  var line = this.consumeLine();
+  const line = this.consumeLine();
   if (!line) {
     return;
   }
-  var match = responseExp.exec(line);
+  const match = responseExp.exec(line);
   if (match === null) {
     throw parseErrorCode('HPE_INVALID_CONSTANT');
   }
   this.info.versionMajor = +match[1];
   this.info.versionMinor = +match[2];
-  var statusCode = this.info.statusCode = +match[3];
+  const statusCode = this.info.statusCode = +match[3];
   this.info.statusMessage = match[4];
   // Implied zero length.
   if ((statusCode / 100 | 0) === 1 || statusCode === 204 || statusCode === 304) {
@@ -279,19 +279,19 @@ HTTPParser.prototype.shouldKeepAlive = function () {
 };
 
 HTTPParser.prototype.HEADER = function () {
-  var line = this.consumeLine();
+  const line = this.consumeLine();
   if (line === undefined) {
     return;
   }
-  var info = this.info;
+  const info = this.info;
   if (line) {
     this.parseHeader(line, info.headers);
   } else {
-    var headers = info.headers;
-    var hasContentLength = false;
-    var currentContentLengthValue;
-    var hasUpgradeHeader = false;
-    for (var i = 0; i < headers.length; i += 2) {
+    const headers = info.headers;
+    let hasContentLength = false;
+    let currentContentLengthValue;
+    let hasUpgradeHeader = false;
+    for (let i = 0; i < headers.length; i += 2) {
       switch (headers[i].toLowerCase()) {
         case 'transfer-encoding':
           this.isChunked = headers[i + 1].toLowerCase() === 'chunked';
@@ -347,7 +347,7 @@ HTTPParser.prototype.HEADER = function () {
 
     info.shouldKeepAlive = this.shouldKeepAlive();
     //problem which also exists in original node: we should know skipBody before calling onHeadersComplete
-    var skipBody;
+    let skipBody;
     if (compatMode0_12) {
       skipBody = this.userCall()(this[kOnHeadersComplete](info));
     } else {
@@ -374,7 +374,7 @@ HTTPParser.prototype.HEADER = function () {
 };
 
 HTTPParser.prototype.BODY_CHUNKHEAD = function () {
-  var line = this.consumeLine();
+  const line = this.consumeLine();
   if (line === undefined) {
     return;
   }
@@ -387,7 +387,7 @@ HTTPParser.prototype.BODY_CHUNKHEAD = function () {
 };
 
 HTTPParser.prototype.BODY_CHUNK = function () {
-  var length = Math.min(this.end - this.offset, this.body_bytes);
+  const length = Math.min(this.end - this.offset, this.body_bytes);
   this.userCall()(this[kOnBody](this.chunk, this.offset, length));
   this.offset += length;
   this.body_bytes -= length;
@@ -397,7 +397,7 @@ HTTPParser.prototype.BODY_CHUNK = function () {
 };
 
 HTTPParser.prototype.BODY_CHUNKEMPTYLINE = function () {
-  var line = this.consumeLine();
+  const line = this.consumeLine();
   if (line === undefined) {
     return;
   }
@@ -406,7 +406,7 @@ HTTPParser.prototype.BODY_CHUNKEMPTYLINE = function () {
 };
 
 HTTPParser.prototype.BODY_CHUNKTRAILERS = function () {
-  var line = this.consumeLine();
+  const line = this.consumeLine();
   if (line === undefined) {
     return;
   }
@@ -421,13 +421,13 @@ HTTPParser.prototype.BODY_CHUNKTRAILERS = function () {
 };
 
 HTTPParser.prototype.BODY_RAW = function () {
-  var length = this.end - this.offset;
+  const length = this.end - this.offset;
   this.userCall()(this[kOnBody](this.chunk, this.offset, length));
   this.offset = this.end;
 };
 
 HTTPParser.prototype.BODY_SIZED = function () {
-  var length = Math.min(this.end - this.offset, this.body_bytes);
+  const length = Math.min(this.end - this.offset, this.body_bytes);
   this.userCall()(this[kOnBody](this.chunk, this.offset, length));
   this.offset += length;
   this.body_bytes -= length;
@@ -438,7 +438,7 @@ HTTPParser.prototype.BODY_SIZED = function () {
 
 // backward compat to node < 0.11.6
 ['Headers', 'HeadersComplete', 'Body', 'MessageComplete'].forEach(function (name) {
-  var k = HTTPParser['kOn' + name];
+  const k = HTTPParser['kOn' + name];
   Object.defineProperty(HTTPParser.prototype, 'on' + name, {
     get: function () {
       return this[k];
@@ -453,7 +453,7 @@ HTTPParser.prototype.BODY_SIZED = function () {
 });
 
 function parseErrorCode(code) {
-  var err = new Error('Parse Error');
+  const err = new Error('Parse Error');
   err.code = code;
   return err;
 }
