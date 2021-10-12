@@ -1,19 +1,22 @@
 {
-  "name": "http-parser-js",
-  "version": "0.5.3",
-  "description": "A pure JS HTTP parser for node.",
+  "name": "@frida/http-parser",
+  "description": "A pure JS HTTP parser for Frida",
+  "version": "1.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "http-parser.js",
+  "files": [
+    "http-parser.js"
+  ],
   "scripts": {
     "test": "python tests/test.py && node tests/iojs/test-http-parser-durability.js",
     "testv12": "python tests/test.py --node-args=\"--http-parser=legacy\" && node --http-parser=legacy tests/iojs/test-http-parser-durability.js"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/creationix/http-parser-js.git"
+    "url": "https://github.com/frida/gumjs-http-parser.git"
   },
-  "files": [
-    "http-parser.js"
-  ],
   "keywords": [
     "http"
   ],
