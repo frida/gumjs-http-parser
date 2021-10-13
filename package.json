@@ -1,5 +1,5 @@
 {
-  "name": "@frida/http-parser",
+  "name": "@frida/http-parser-js",
   "description": "A pure JS HTTP parser for Frida",
   "version": "1.0.0",
   "publishConfig": {
