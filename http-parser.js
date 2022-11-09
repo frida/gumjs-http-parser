@@ -89,7 +89,7 @@ export const methods = [
   'UNLINK'
 ];
 HTTPParser.methods = methods;
-const method_connect = methods.indexOf('CONNECT');
+let method_connect = methods.indexOf('CONNECT');
 HTTPParser.prototype.reinitialize = HTTPParser;
 HTTPParser.prototype.close =
 HTTPParser.prototype.pause =
