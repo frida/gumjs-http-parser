@@ -135,7 +135,7 @@ HTTPParser.prototype.execute = function (chunk, start, length) {
   length = this.offset - start;
   if (headerState[this.state]) {
     this.headerSize += length;
-    if (this.headerSize > (this.maxHeaderSize || HTTPParser.maxHeaderSize)) {
+    if (this.headerSize > (this.maxHeaderSize ?? HTTPParser.maxHeaderSize)) {
       return new Error('max header size exceeded');
     }
   }
