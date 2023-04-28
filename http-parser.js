@@ -7,6 +7,7 @@ export function HTTPParser(type) {
   } else {
     this.initialize(type);
   }
+  this.maxHeaderSize = HTTPParser.maxHeaderSize;
 }
 HTTPParser.prototype.initialize = function (type, async_resource) {
   assert.ok(type === HTTPParser.REQUEST || type === HTTPParser.RESPONSE);
@@ -86,10 +87,11 @@ export const methods = [
   'PURGE',
   'MKCALENDAR',
   'LINK',
-  'UNLINK'
+  'UNLINK',
+  'SOURCE',
 ];
 HTTPParser.methods = methods;
-const method_connect = methods.indexOf('CONNECT');
+let method_connect = methods.indexOf('CONNECT');
 HTTPParser.prototype.reinitialize = HTTPParser;
 HTTPParser.prototype.close =
 HTTPParser.prototype.pause =
@@ -133,7 +135,7 @@ HTTPParser.prototype.execute = function (chunk, start, length) {
   length = this.offset - start;
   if (headerState[this.state]) {
     this.headerSize += length;
-    if (this.headerSize > HTTPParser.maxHeaderSize) {
+    if (this.headerSize > (this.maxHeaderSize ?? HTTPParser.maxHeaderSize)) {
       return new Error('max header size exceeded');
     }
   }
